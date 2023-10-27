@@ -22,6 +22,7 @@
 
 import pandas
 from editdistpy import damerau_osa
+#todo use dam-lev 0.1.2 instead 
 class Checker:
 	def __init__(model):
 #model is the language model use pd df
