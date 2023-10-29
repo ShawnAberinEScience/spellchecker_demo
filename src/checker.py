@@ -20,22 +20,35 @@
 # 3. get top p max p of n-gram among k
 
 
+
+from collections import namedtuple as ntu
 import pandas
 from editdistpy import damerau_osa
 #todo use dam-lev 0.1.2 instead 
-class Checker:
+class Finder:
 	def __init__(model):
 #model is the language model use pd df
 		self.model = model
-	def getDist(tok:str):
-		tok_l = len(tok)
-		max_dist = tok_l
+		self.query = ntu('Query', ['exists','val'])
+	def queryModel(tok:str):
+		exists = tok in self.model
+		# TODO: check for instances
+		val = model[tok] if exists else None
+		return self.query(exists,val)
+	
+
+	def getD(tok:str):
 		candidates = []
-		empty = true
 		max_d = 1
-		while empty:
+		sentinel = 45<<1 #magic number. set to twice the length of longest word in corpus
+		while not (candidates or max_d > sentinel) :
 			candidates = [word for word in self.model.keys() if damerau_osa.distance(tok,word,max_d) > -1]
-			#change line directly above to df.apply
-			#get list of keys with dist greater than sentinel
-			empty,max_d = (False, max_d) if candidates else (True, max_d+1)
-			
+			max_d += 1
+		return candidates
+	
+	def getCandidates(tok:str):
+		query = querModel
+		if query.exists:
+			return [tok]
+		else:
+			return getDist(tok)
