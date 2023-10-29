@@ -21,12 +21,15 @@
 
 
 
-from collections import namedtuple as ntu
-from collections import Counter
-import pandas
+from collections import namedtuple as ntu, Counter
 import numpy as np
+from re import finditer,compile
 from editdistpy import damerau_osa
+
+
 #todo use dam-lev 0.1.2 instead 
+
+
 class Finder:
 	def __init__(model):
 #model is the language model use pd df
@@ -66,6 +69,7 @@ class Modeler:
 		ispd = instanceof(corpus,pd.df)
 		isctr = instanceof(corpus, Counter)
 		if isstr:
+			#use nltk to tokenize corpus then use counter
 			for word in corpus:
 				pass
 				#count the occurence of word
@@ -73,7 +77,7 @@ class Modeler:
 			self.model = self.getP_C(coprus)
 			#iterate corpus. create dict with probabilities
 			#probably put this as nother func. isstr may need this
-			
+
 	def getP_C(self,counts):
 		total = sum(counts.values())
 		r_t = 1/total
