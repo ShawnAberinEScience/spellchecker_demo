@@ -63,7 +63,8 @@ class Finder:
 			weighted.sort(key = lambda tu: tu[1],reversed = True)
 			islong = len (weighted)>=n
 			return weighted[::n] if islong else weighted
-class Modeler:
+class L_Model:
+#use pandas
 	def __init__(self, corpus):
 		isstr = instanceof(corpus,str)
 		ispd = instanceof(corpus,pd.df)
@@ -85,5 +86,12 @@ class Modeler:
 		vals = np.array(counts.values())/r_t
 		return dict(zip(keys,vals))
 						 
-		
-		
+
+class E_Model:
+	#TODO use regex to parse norvig's 1edit err
+	def __init__(self,data:list[tuple[str,int]]):
+		df = pd.DataFrame(data, columns=['error', 'count'])
+		total = sum(df['count'])
+		inv = 1/total
+		df['p'] = df['count']*inv
+		self.df = df
