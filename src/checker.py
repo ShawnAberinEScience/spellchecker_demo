@@ -22,7 +22,9 @@
 
 
 from collections import namedtuple as ntu
+from collections import Counter
 import pandas
+import numpy as np
 from editdistpy import damerau_osa
 #todo use dam-lev 0.1.2 instead 
 class Finder:
@@ -48,7 +50,36 @@ class Finder:
 	
 	def getCandidates(tok:str):
 		query = querModel
+		candidates = []
 		if query.exists:
 			return [tok]
 		else:
-			return getDist(tok)
+			candidates = self.getD(tok)
+			p_c =[model[word] for word in candidates]
+			weighted = list(zip(candidates,p_c))
+			weighted.sort(key = lambda tu: tu[1],reversed = True)
+			islong = len (weighted)>=n
+			return weighted[::n] if islong else weighted
+class Modeler:
+	def __init__(self, corpus):
+		isstr = instanceof(corpus,str)
+		ispd = instanceof(corpus,pd.df)
+		isctr = instanceof(corpus, Counter)
+		if isstr:
+			for word in corpus:
+				pass
+				#count the occurence of word
+		elif isctr:
+			self.model = self.getP_C(coprus)
+			#iterate corpus. create dict with probabilities
+			#probably put this as nother func. isstr may need this
+			
+	def getP_C(self,counts):
+		total = sum(counts.values())
+		r_t = 1/total
+		keys = counts.keys()
+		vals = np.array(counts.values())/r_t
+		return dict(zip(keys,vals))
+						 
+		
+		
