@@ -1,19 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: ipynb,py:light
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.15.2
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
 # steps:
 # 1. get edit dist if using editdistpy, set max dist to 2*max(len(noisy),len(word))
 # 2. get top k min edit dist
@@ -31,10 +15,11 @@ from editdistpy import damerau_osa
 
 
 class Finder:
-	def __init__(model):
+	def __init__(lang,err):
 #model is the language model use pd df
-		self.model = model
+		self.lang = lang
 		self.query = ntu('Query', ['exists','val'])
+		self.err = err
 	def queryModel(tok:str):
 		exists = tok in self.model
 		# TODO: check for instances
@@ -44,11 +29,12 @@ class Finder:
 
 	def getD(tok:str):
 		candidates = []
-		max_d = 1
+		max_d = 0
 		sentinel = 45<<1 #magic number. set to twice the length of longest word in corpus
-		while not (candidates or max_d > sentinel) :
-			candidates = [word for word in self.model.keys() if damerau_osa.distance(tok,word,max_d) > -1]
-			max_d += 1
+		while not candidates and max_d < sentinel :
+			max_d+=1
+			candidates = [word for word in self.lang if damerau_osa.distance(tok,word,max_d) > 0]
+			
 		return candidates
 	
 	def getCandidates(tok:str):
@@ -56,10 +42,11 @@ class Finder:
 		candidates = []
 		if query.exists:
 			return [tok]
+		#what calls this checks if tok is in the return value
 		else:
 			candidates = self.getD(tok)
-			p_c =[model[word] for word in candidates]
-			weighted = list(zip(candidates,p_c))
+			p_c = self.lang[candidates]
+
 			weighted.sort(key = lambda tu: tu[1],reversed = True)
 			islong = len (weighted)>=n
 			return weighted[::n] if islong else weighted
@@ -71,13 +58,12 @@ class L_Model:
 		isctr = instanceof(corpus, Counter)
 		if isstr:
 			#use nltk to tokenize corpus then use counter
-			for word in corpus:
-				pass
-				#count the occurence of word
-		elif isctr:
+			for word in lang:
+			
+		elif isdict:
 			self.model = self.getP_C(coprus)
 			#iterate corpus. create dict with probabilities
-			#probably put this as nother func. isstr may need this
+
 
 	def getP_C(self,counts):
 		total = sum(counts.values())
