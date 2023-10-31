@@ -24,44 +24,39 @@
 from collections import Counter
 import numpy as np
 from re import finditer,compile
-from editdistpy import damerau_osa
+from editdistpy import damerau_osa as ld
 import pandas as pd
 
 # todo use dam-lev 0.1.2 instead 
 
 
 class Finder:
-	def __init__(model):
+	def __init__(model,err):
 #model is the language model use pd df
 		if not isinstance(model,pd.DataFrame):
 			model = pd.DataFrame(model)
 		self.model = model
-
-	def queryModel(tok:str):
-		# TODO: check for instances
-		return [tok] if tok in self.model else None
-		
-	
-
+		if not isinstance(err,pd.DataFrame):
+			err = pd.DataFrame(err)
+		self.err = err
+			
 	def getD(tok:str):
 		candidates = []
-		max_d = 1
-		sentinel = 45<<1 #magic number. set to twice the length of longest word in corpus
-		while not (candidates or max_d > sentinel) :
-			candidates = [word for word in self.model.keys() if damerau_osa.distance(tok,word,max_d) > -1]
-			max_d += 1
+		d = 0
+		max = 90 #magic number set to the longest possible edit distance
+		while not candidates and d < max:
+			d+=1
+			candidates = [w for w in self.model.index if ld.distance(tok,w,d) > -1]
 		return candidates
 	
 	def getCandidates(tok:str):
-		candidates = queryModel(tok)
-		if candidates is None:
-			n = 3
+		candidates = [tok]
+		if tok not in self.model:
 			candidates = self.getD(tok)
 			p_c =self.model[candidates]
 			candidates = self.refine(p_c)
 		return candidates
 class L_Model:
-#use pandas
 	def __init__(self, corpus):
 		isstr = instanceof(corpus,str)
 		ispd = instanceof(corpus,pd.df)
@@ -70,11 +65,9 @@ class L_Model:
 			#use nltk to tokenize corpus then use counter
 			for word in corpus:
 				pass
-				#count the occurence of word
 		elif isctr:
 			self.model = self.getP_C(coprus)
-			#iterate corpus. create dict with probabilities
-			#probably put this as nother func. isstr may need this
+
 
 	def getP_C(self,counts):
 		total = sum(counts.values())
