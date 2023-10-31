@@ -1,3 +1,19 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: ipynb,py
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.15.2
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
+# ---
+
 # steps:
 # 1. get edit dist if using editdistpy, set max dist to 2*max(len(noisy),len(word))
 # 2. get top k min edit dist
@@ -5,64 +21,52 @@
 
 
 
-from collections import namedtuple as ntu, Counter
+from collections import Counter
 import numpy as np
 from re import finditer,compile
-from editdistpy import damerau_osa
+from editdistpy import damerau_osa as ld
+import pandas as pd
 
-
-#todo use dam-lev 0.1.2 instead 
+# todo use dam-lev 0.1.2 instead 
 
 
 class Finder:
-	def __init__(lang,err):
+	def __init__(self,model,err):
 #model is the language model use pd df
-		self.lang = lang
-		self.query = ntu('Query', ['exists','val'])
+		if not isinstance(model,pd.DataFrame):
+			model = pd.DataFrame(model)
+		self.model = model
+		if not isinstance(err,pd.DataFrame):
+			err = pd.DataFrame(err)
 		self.err = err
-	def queryModel(tok:str):
-		exists = tok in self.model
-		# TODO: check for instances
-		val = model[tok] if exists else None
-		return self.query(exists,val)
-	
-
-	def getD(tok:str):
-		candidates = []
-		max_d = 0
-		sentinel = 45<<1 #magic number. set to twice the length of longest word in corpus
-		while not candidates and max_d < sentinel :
-			max_d+=1
-			candidates = [word for word in self.lang if damerau_osa.distance(tok,word,max_d) > 0]
 			
+	def getD(self,tok:str):
+		candidates = []
+		d = 0
+		max = 90 #magic number set to the longest possible edit distance
+		while not candidates and d < max:
+			d+=1
+			candidates = [w for w in self.model.index if ld.distance(tok,w,d) > -1]
 		return candidates
 	
-	def getCandidates(tok:str):
-		query = querModel
-		candidates = []
-		if query.exists:
-			return [tok]
-		#what calls this checks if tok is in the return value
-		else:
+	def getCandidates(self,tok:str):
+		candidates = [tok]
+		if tok not in self.model:
 			candidates = self.getD(tok)
-			p_c = self.lang[candidates]
-
-			weighted.sort(key = lambda tu: tu[1],reversed = True)
-			islong = len (weighted)>=n
-			return weighted[::n] if islong else weighted
+			p_c =self.model[candidates]
+			candidates = self.refine(p_c)
+		return candidates
 class L_Model:
-#use pandas
 	def __init__(self, corpus):
-		isstr = instanceof(corpus,str)
-		ispd = instanceof(corpus,pd.df)
-		isctr = instanceof(corpus, Counter)
+		isstr = isinstance(corpus,str)
+		ispd = isinstance(corpus,pd.df)
+		isctr = isinstance(corpus, Counter)
 		if isstr:
 			#use nltk to tokenize corpus then use counter
-			for word in lang:
-			
-		elif isdict:
-			self.model = self.getP_C(coprus)
-			#iterate corpus. create dict with probabilities
+			for word in corpus:
+				pass
+		elif isctr:
+			self.model = self.getP_C(corpus)
 
 
 	def getP_C(self,counts):
@@ -71,7 +75,7 @@ class L_Model:
 		keys = counts.keys()
 		vals = np.array(counts.values())/r_t
 		return dict(zip(keys,vals))
-						 
+
 
 class E_Model:
 	#TODO use regex to parse norvig's 1edit err
