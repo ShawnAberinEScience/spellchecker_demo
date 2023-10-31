@@ -2,7 +2,7 @@
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: -all
-#     formats: ipynb,py:light
+#     formats: ipynb,py
 #     text_representation:
 #       extension: .py
 #       format_name: light
@@ -21,25 +21,26 @@
 
 
 
-from collections import namedtuple as ntu, Counter
+from collections import Counter
 import numpy as np
 from re import finditer,compile
 from editdistpy import damerau_osa
+import pandas as pd
 
-
-#todo use dam-lev 0.1.2 instead 
+# todo use dam-lev 0.1.2 instead 
 
 
 class Finder:
 	def __init__(model):
 #model is the language model use pd df
+		if not isinstance(model,pd.DataFrame):
+			model = pd.DataFrame(model)
 		self.model = model
-		self.query = ntu('Query', ['exists','val'])
+
 	def queryModel(tok:str):
-		exists = tok in self.model
 		# TODO: check for instances
-		val = model[tok] if exists else None
-		return self.query(exists,val)
+		return [tok] if tok in self.model else None
+		
 	
 
 	def getD(tok:str):
@@ -52,17 +53,13 @@ class Finder:
 		return candidates
 	
 	def getCandidates(tok:str):
-		query = querModel
-		candidates = []
-		if query.exists:
-			return [tok]
-		else:
+		candidates = queryModel(tok)
+		if candidates is None:
+			n = 3
 			candidates = self.getD(tok)
-			p_c =[model[word] for word in candidates]
-			weighted = list(zip(candidates,p_c))
-			weighted.sort(key = lambda tu: tu[1],reversed = True)
-			islong = len (weighted)>=n
-			return weighted[::n] if islong else weighted
+			p_c =self.model[candidates]
+			candidates = self.refine(p_c)
+		return candidates
 class L_Model:
 #use pandas
 	def __init__(self, corpus):
@@ -85,7 +82,7 @@ class L_Model:
 		keys = counts.keys()
 		vals = np.array(counts.values())/r_t
 		return dict(zip(keys,vals))
-						 
+
 
 class E_Model:
 	#TODO use regex to parse norvig's 1edit err
