@@ -27,16 +27,15 @@ import numpy as np
 from re import finditer,compile
 from editdistpy import damerau_osa as ld
 import pandas as pd
-
-# todo use dam-lev 0.1.2 instead 
+import nltk
+from nltk.corpus import gutenberg as cor_g
+# todo use faster dam-lev
 
 
 class Finder:
-	def __init__(self,model,err):
-	
-		if not isinstance(model,pd.DataFrame):
-			model = pd.DataFrame(model)
-		self.model = model
+	def __init__(self,err):
+
+		self.model = L_Model()
 	
 		if not isinstance(err,pd.DataFrame):
 			err = pd.DataFrame(err)
@@ -45,8 +44,8 @@ class Finder:
 	def getD(self,tok:str):
 		candidates = []
 		d = 1
-		foo = 90 #magic number set to the longest possible edit distance
-		while not candidates and d <= foo:
+		MAX = 90 #magic number set to the longest possible edit distance
+		while not candidates and d <= MAX:
 			candidates = [w for w in self.model.index if ld.distance(tok,w,d) > -1]
 			d+=1
 		return candidates
@@ -59,30 +58,10 @@ class Finder:
 			candidates = self.refine(p_c)
 		return candidates
 class L_Model:
-	def __init__(self, corpus):
-		isstr = isinstance(corpus,str)
-		ispd = isinstance(corpus,pd.df)
-		isdictLike = isinstance(corpus, Dictionary)
-		if isstr:
-			#use nltk to tokenize corpus then use counter
-			corpus= world.lower()
-			body = nltk.work_tokenize(corpus.translate(dict.fromkeys(string.punctuation)))
-			unique = set(body)
-			P_C = zip(unique,nltk.FreqDist(unique))
-			#be funny and make this a dict
-			self.model = pandas.DataFrame(P_C)
-			#TODO:make it prpoer
-		elif isctr:
-			self.model = self.getP_C(corpus)
-		if ispd:			
-			self.model = corpus 
-
-	def getP_C(self,counts):
-		total = sum(counts.values())
-		r_t = 1/total
-		keys = counts.keys()
-		vals = np.array(counts.values())/r_t
-		return dict(zip(keys,vals))
+	def __init__(self):
+    #use gutenberg corpus
+    # turn the word and freq into df
+		pass
 
 
 class E_Model:
