@@ -1,24 +1,25 @@
 # ---
 # jupyter:
 #   jupytext:
-#     cell_metadata_filter: -all
-#     formats: ipynb,py
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.15.2
+#\t cell_metadata_filter: -all
+#\t formats: ipynb,py
+#\t text_representation:
+#\t   extension: .py
+#\t   format_name: light
+#\t   format_version: '1.5'
+#\t   jupytext_version: 1.15.2
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
+#\t display_name: Python 3 (ipykernel)
+#\t language: python
+#\t name: python3
 # ---
 
 # steps:
 # 1. get edit dist if using editdistpy, set max dist to 2*max(len(noisy),len(word))
 # 2. get top k min edit dist
 # 3. get top p max p of n-gram among k
-
+# 4. find first probability of 1st error 
+# 5. multiply to p
 
 
 from collections import Counter
@@ -32,21 +33,22 @@ import pandas as pd
 
 class Finder:
 	def __init__(self,model,err):
-#model is the language model use pd df
+	
 		if not isinstance(model,pd.DataFrame):
 			model = pd.DataFrame(model)
 		self.model = model
+	
 		if not isinstance(err,pd.DataFrame):
 			err = pd.DataFrame(err)
 		self.err = err
 			
 	def getD(self,tok:str):
 		candidates = []
-		d = 0
-		max = 90 #magic number set to the longest possible edit distance
-		while not candidates and d < max:
-			d+=1
+		d = 1
+		foo = 90 #magic number set to the longest possible edit distance
+		while not candidates and d <= foo:
 			candidates = [w for w in self.model.index if ld.distance(tok,w,d) > -1]
+			d+=1
 		return candidates
 	
 	def getCandidates(self,tok:str):
@@ -60,14 +62,20 @@ class L_Model:
 	def __init__(self, corpus):
 		isstr = isinstance(corpus,str)
 		ispd = isinstance(corpus,pd.df)
-		isctr = isinstance(corpus, Counter)
+		isdictLike = isinstance(corpus, Dictionary)
 		if isstr:
 			#use nltk to tokenize corpus then use counter
-			for word in corpus:
-				pass
+			corpus= world.lower()
+			body = nltk.work_tokenize(corpus.translate(dict.fromkeys(string.punctuation)))
+			unique = set(body)
+			P_C = zip(unique,nltk.FreqDist(unique))
+			#be funny and make this a dict
+			self.model = pandas.DataFrame(P_C)
+			#TODO:make it prpoer
 		elif isctr:
 			self.model = self.getP_C(corpus)
-
+		if ispd:			
+			self.model = corpus 
 
 	def getP_C(self,counts):
 		total = sum(counts.values())
