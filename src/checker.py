@@ -28,6 +28,7 @@ from re import finditer,compile
 from editdistpy import damerau_osa as ld
 import pandas as pd
 import nltk
+from nltk import FreqDist as f_dist
 from nltk.corpus import gutenberg as cor_g
 # todo use faster dam-lev
 
@@ -59,9 +60,12 @@ class Finder:
 		return candidates
 class L_Model:
 	def __init__(self):
+		words = gut.words(id in gut.fileids())
+		p = f_dist(word.lower() for word in words)
+			
     #use gutenberg corpus
     # turn the word and freq into df
-		pass
+		
 
 
 class E_Model:
