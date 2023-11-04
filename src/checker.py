@@ -6,6 +6,7 @@ import pandas as pd
 import nltk
 from nltk import FreqDist as f_dist
 from nltk.corpus import gutenberg as cor_g
+import re 
 # todo use faster dam-lev
 
 
@@ -48,7 +49,7 @@ class L_Model:
 		#corpus to df
 		df = pd.DataFrame.from_dict(corpus, orient='index').reset_index()
 		df = df.rename(columns={'index':'word', 0:'count'})
-		
+
 		words = gut.words(id in gut.fileids())
 		p = f_dist(word.lower() for word in words)
 			
@@ -56,10 +57,27 @@ class L_Model:
     # turn the word and freq into df
 		
 class E_Model:
-	#TODO use regex to parse norvig's 1edit err
+	
 	def __init__(self,data:list[tuple[str,int]]):
 		df = pd.DataFrame(data, columns=['error', 'count'])
 		total = sum(df['count'])
 		inv = 1/total
 		df['p'] = df['count']*inv
 		self.df = df
+	
+	#use regex to parse norvig's 1edit err
+	letterPattern = r"[a-z|]+"
+	numberPattern = r"\d+"
+
+	file1 = open('count_1edit.txt', 'r')
+	error_list = []
+	counts = []
+		
+	for line in file1:
+		letterMatch = re.findall(letterPattern, line)
+		numberMatch = re.findall(numberPattern, line)
+		error = letterMatch.pop(0)
+		count = numberMatch.pop(0)
+		error_list.append(error)
+		counts.append(count)
+
