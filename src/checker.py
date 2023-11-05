@@ -1,3 +1,28 @@
+
+=======
+# ---
+# jupyter:
+#   jupytext:
+#\t cell_metadata_filter: -all
+#\t formats: ipynb,py
+#\t text_representation:
+#\t   extension: .py
+#\t   format_name: light
+#\t   format_version: '1.5'
+#\t   jupytext_version: 1.15.2
+#   kernelspec:
+#\t display_name: Python 3 (ipykernel)
+#\t language: python
+#\t name: python3
+# ---
+
+# steps:
+# 1. get edit dist if using editdistpy, set max dist to 2*max(len(noisy),len(word))
+# 2. get top k min edit dist
+# 3. get top p max p of n-gram among k
+# 4. find first probability of 1st error 
+# 5. multiply to p
+
 from collections import Counter
 import numpy as np
 from re import finditer,compile
@@ -7,8 +32,6 @@ import nltk
 from nltk import FreqDist as f_dist
 from nltk.corpus import gutenberg as cor_g
 import re 
-# todo use faster dam-lev
-
 
 class Finder:
 	def __init__(self,err):
@@ -35,6 +58,7 @@ class Finder:
 			p_c =self.model[candidates]
 			candidates = self.refine(p_c)
 		return candidates
+
 	
 class L_Model:
 	def __init__(self):
@@ -50,11 +74,7 @@ class L_Model:
 		df = pd.DataFrame.from_dict(corpus, orient='index').reset_index()
 		df = df.rename(columns={'index':'word', 0:'count'})
 
-		words = gut.words(id in gut.fileids())
-		p = f_dist(word.lower() for word in words)
-			
-    #use gutenberg corpus
-    # turn the word and freq into df
+
 		
 class E_Model:
 	
@@ -80,4 +100,6 @@ class E_Model:
 		count = numberMatch.pop(0)
 		error_list.append(error)
 		counts.append(count)
+
+
 
